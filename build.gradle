@@ -1,4 +1,4 @@
-ldscript {
+buildscript {
     repositories { jcenter() }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
@@ -31,7 +31,7 @@ dependencies {
 shadowJar {
     classifier = 'fat'
     manifest {
-        attributes 'Main-Class': 'org.dorydory.websocket.Server'
+        attributes 'Main-Class': 'org.dorydory.server.Server'
     }
     mergeServiceFiles {
         include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
@@ -41,4 +41,4 @@ shadowJar {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
 }
-}
+
