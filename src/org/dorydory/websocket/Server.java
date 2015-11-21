@@ -24,14 +24,18 @@ public class Server extends AbstractVerticle {
         vertx.createHttpServer().websocketHandler(new Handler<ServerWebSocket>() {
             @Override
             public void handle(final ServerWebSocket ws) {
+                clients.put(ws.binaryHandlerID(),ws);
+
                 ws.writeFinalTextFrame("url: "+ws.path());
                 switch(ws.path()) {
                     case "/register":
                         register(ws);
                         break;
                     case "/chat":
-                        clients.put(ws.binaryHandlerID(),ws);
                         chat(ws);
+                        break;
+                    case "/battle":
+                        battle(ws);
                         break;
                     default:
                         ws.writeFinalTextFrame("404 NOT FOUND!");
@@ -46,13 +50,6 @@ public class Server extends AbstractVerticle {
         ws.handler(new Handler<Buffer>() {
             @Override
             public void handle(final Buffer data) {
-/*
-                while(true) {
-                    ws.writeFinalTextFrame(data.toString());
-
-                }
-
-*/
             }
         });
 
@@ -73,17 +70,30 @@ public class Server extends AbstractVerticle {
                 String inputString = data.toString();
                 JsonObject jsonObject = new JsonObject(inputString);
                 String msg = jsonObject.getString("msg");
-/*
-                Object object = JSONValue.parse(inputString);
-                JSONObject Jobj = (JSONObject) object;
-
-                String msg = Jobj.get("msg").toString();
- */
                 System.out.println("" + clients.size());
                 for (Map.Entry<String, ServerWebSocket> entry : clients.entrySet()) {
                     ServerWebSocket client = entry.getValue();
                     client.writeFinalTextFrame(msg);
                 }
+            }
+        });
+    }
+
+    public void battle(final ServerWebSocket ws) {
+
+        ws.closeHandler(new Handler<Void>() {
+            @Override
+            public void handle(Void arg0) {
+                clients.remove(ws.binaryHandlerID());
+            }
+        });
+
+        ws.handler(new Handler<Buffer>() {
+            @Override
+            public void handle(final Buffer data) {
+                String inputString = data.toString();
+                JsonObject jsonObject = new JsonObject(inputString);
+                String msg = jsonObject.getString("actionType:");
             }
         });
     }
